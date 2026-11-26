@@ -1,0 +1,67 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+abstract class Item {
+  -id : int
+  -titulo : String
+  -disponivel : boolean
+  +{abstract} prazoDias() : int
+  +{abstract} multaPorDia() : double
+  +{abstract} tipo() : String
+}
+class Livro   { -autor : String      +prazoDias() : int +multaPorDia() : double }
+class Revista { -edicao : int        +prazoDias() : int +multaPorDia() : double }
+class DVD     { -duracaoMin : int    +prazoDias() : int +multaPorDia() : double }
+
+abstract class Pessoa {
+  -nome : String
+  +{abstract} limiteEmprestimos() : int
+  +{abstract} tipo() : String
+}
+class Aluno     { -matricula : String     +limiteEmprestimos() : int }
+class Professor { -departamento : String  +limiteEmprestimos() : int }
+class Endereco  { -rua : String  -cidade : String }
+
+class Emprestimo {
+  -data : LocalDate
+  -ativo : boolean
+  +vencimento() : LocalDate
+  +devolver(hoje : LocalDate) : double
+}
+class Biblioteca {
+  +adicionar(item : Item)
+  +adicionar(pessoa : Pessoa)
+  +emprestar(p : Pessoa, i : Item, data : LocalDate) : Emprestimo
+  +devolver(e : Emprestimo, hoje : LocalDate) : double
+}
+class BibliotecaException
+class TelaPrincipal
+
+' HERANÇA
+Item <|-- Livro
+Item <|-- Revista
+Item <|-- DVD
+Pessoa <|-- Aluno
+Pessoa <|-- Professor
+
+' COMPOSIÇÃO
+Pessoa     *-- "1" Endereco
+Biblioteca *-- "*" Emprestimo
+
+' ASSOCIAÇÃO
+Biblioteca "1" --> "*" Item
+Biblioteca "1" --> "*" Pessoa
+Emprestimo "*" --> "1" Pessoa
+Emprestimo "*" --> "1" Item
+TelaPrincipal --> "1" Biblioteca
+
+' DEPENDÊNCIA
+Biblioteca ..> BibliotecaException : <<throws>>
+TelaPrincipal ..> Livro : <<create>>
+TelaPrincipal ..> Revista : <<create>>
+TelaPrincipal ..> DVD : <<create>>
+TelaPrincipal ..> Aluno : <<create>>
+TelaPrincipal ..> Professor : <<create>>
+TelaPrincipal ..> BibliotecaException : <<catch>>
+@enduml
